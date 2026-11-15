@@ -4,7 +4,7 @@
 
 ## 安装和验证
 
-使用 Python 3.11，数值依赖固定在 requirements.txt；部署时先安装，不在服务启动或测试过程中下载。
+使用 Python 3.11.2，数值依赖固定在 requirements.txt；部署时先安装，不在服务启动或测试过程中下载。
 
 ```bash
 python3 -m pip install -r requirements.txt
