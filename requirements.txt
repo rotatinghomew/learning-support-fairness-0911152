@@ -1,0 +1,7 @@
+# 数值分析及其传递依赖均使用固定版本。
+numpy==2.2.6
+scipy==1.15.3
+scikit-learn==1.6.1
+joblib==1.6.0
+threadpoolctl==3.8.0
+cloudpickle==3.1.2
