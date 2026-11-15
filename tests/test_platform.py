@@ -73,11 +73,33 @@ class PlatformTests(unittest.TestCase):
                 validate(tables)
                 self.assertEqual(revision, digest(tables))
                 self.assertIsInstance(ANALYSES["overview"](tables, {}), dict)
+                self.assertIsInstance(ANALYSES["support_fairness"](tables, {}), dict)
 
     def test_catalog(self):
         status, catalog = self.request("/catalog")
         self.assertEqual(status, 200)
         self.assertIn("overview", catalog["analyses"])
+        self.assertIn("support_fairness", catalog["analyses"])
+
+    def test_support_fairness_via_http(self):
+        request = {"request_key": "fairness-http", "release": "term-a", "analysis": "support_fairness"}
+        status, record = self.request("/analyses", request)
+        self.assertEqual(status, 201)
+        result = record["result"]
+        self.assertEqual(result["roles"]["selection"]["cohorts"], [0, 1])
+        self.assertEqual(result["scope"]["real_capacity_total"], 50)
+        self.assertFalse(result["scope"]["score_modified"])
+        self.assertEqual(self.request("/analyses", request)[1]["id"], record["id"])
+        self.assertEqual(self.request("/analyses/" + record["id"])[1], record)
+
+    def test_support_fairness_parameters_validated(self):
+        request = {
+            "request_key": "fairness-bad", "release": "term-a", "analysis": "support_fairness",
+            "parameters": {"splits": {"selection": [0], "estimation": [0], "validation": [1]}},
+        }
+        with self.assertRaises(HTTPError) as raised:
+            self.request("/analyses", request)
+        self.assertEqual(raised.exception.code, 422)
 
     def test_save_retrieve_and_replay(self):
         request = {"request_key": "replay", "release": "term-a", "analysis": "overview"}

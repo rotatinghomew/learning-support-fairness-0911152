@@ -4,6 +4,7 @@ import math
 import numpy as np
 
 from learning.codec import numeric, require_fields, unique
+from learning.fairness import support_fairness
 
 PRODUCT = '数字助教支持分流'
 KEYS = {'people': ['person'], 'audits': ['person'], 'capacities': ['site']}
@@ -41,4 +42,4 @@ def overview(tables, parameters):
                        for key, rows in sorted(groups.items())], "capacity": sum(row["slots"] for row in tables["capacities"])}
 
 
-ANALYSES = {"overview": overview}
+ANALYSES = {"overview": overview, "support_fairness": support_fairness}

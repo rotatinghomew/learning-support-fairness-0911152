@@ -44,6 +44,23 @@ def main():
             loaded = call("http://127.0.0.1:8766/analyses/" + record["id"])
             if loaded != record:
                 raise RuntimeError("保存的分析与返回值不一致")
+            fairness = call("http://127.0.0.1:8766/analyses", {
+                "request_key": "local-support-fairness", "release": "term-a",
+                "analysis": "support_fairness", "parameters": {},
+            })
+            result = fairness["result"]
+            print(json.dumps({
+                "catalog_analyses": sorted(call("http://127.0.0.1:8766/catalog")["analyses"]),
+                "recommended_rule": result["recommended_rule"],
+                "recommendation_status": result["recommendation"]["status"],
+                "feasible_rules": result["feasibility"]["feasible_rules"],
+                "deployment_selected": (result["deployment_suggestion"] or {}).get("selected"),
+                "validation_sample": len(result["recommendation"]["validation_sample"]),
+                "design_check_passed": result["design_check"]["assumption_holds"],
+            }, ensure_ascii=False, indent=2))
+            replayed = call("http://127.0.0.1:8766/analyses/" + fairness["id"])
+            if replayed != fairness:
+                raise RuntimeError("保存的公平性分析与返回值不一致")
             print(f"本地分析完成，用时 {time.monotonic() - started:.2f} 秒")
         finally:
             for process in processes:
